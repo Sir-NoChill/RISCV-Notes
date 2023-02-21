@@ -1,43 +1,7 @@
+# Created by https://www.toptal.com/developers/gitignore/api/latex
+# Edit at https://www.toptal.com/developers/gitignore?templates=latex
 
-Skip to content
-Pulls
-Issues
-Codespaces
-Marketplace
-Explore
-@Sir-NoChill
-github /
-gitignore
-Public
-
-Fork your own copy of github/gitignore
-
-Code
-Pull requests 371
-Actions
-Security
-
-    Insights
-
-gitignore/TeX.gitignore
-@bdougie
-bdougie Merge pull request #3752 from lafeychine/TikZplot
-Latest commit 362abac Dec 10, 2021
-History
-66 contributors
-@maieul
-@koppor
-@shiftkey
-@arcresu
-@bdougie
-@habi
-@lszeremeta
-@tjgrilley
-@Anton-Sakovich
-@seungwonpark
-@vkusvody
-@dopefishh
-301 lines (234 sloc) 3.01 KB
+### LaTeX ###
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
@@ -339,19 +303,12 @@ TSWLatexianTemp*
 # option is specified. Footnotes are the stored in a file with suffix Notes.bib.
 # Uncomment the next line to have this generated file ignored.
 #*Notes.bib
-Footer
-© 2023 GitHub, Inc.
-Footer navigation
 
-    Terms
-    Privacy
-    Security
-    Status
-    Docs
-    Contact GitHub
-    Pricing
-    API
-    Training
-    Blog
-    About
+### LaTeX Patch ###
+# LIPIcs / OASIcs
+*.vtc
 
+# glossaries
+*.glstex
+
+# End of https://www.toptal.com/developers/gitignore/api/latex
