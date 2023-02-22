@@ -4,6 +4,8 @@
 \usepackage[]{xcolor}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{lscape} 
+\usepackage[]{cleveref}
 
 \declaretheorem[shaded={rulecolor=gray}]{note}
 
@@ -135,11 +137,49 @@ This is essentially just a giant map of data with key-value pairs that represent
 \subsubsection{Storing and Loading from memory}
 The two basic loading and storing operations in RISC-V are the \verb*|lw, sw| instructions which mean load-word and store-word respectively.%TODO
 
-\subsection{Instruction types and Immediates}
-%TODO transcribe the big diagrams into this document
 
 \section{Week 3}
-\subsection{Instruction Representations}
+\begin{landscape}
+\subsection{Instruction types and Immediates}
+%TODO transcribe the big diagrams into this document
+% Template
+%\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+%	\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
+%	\hline \multicolumn{7}{|c|}{funct7}&\multicolumn{5}{c|}{rs2}&\multicolumn{5}{c|}{rs1}&\multicolumn{3}{c|}{funct3}&\multicolumn{5}{c|}{rd}&\multicolumn{7}{c|}{opcode}\\
+%	\hline
+%\end{tabular}
+\subsubsection{R-Type Instructions}
+\title{R-Type Instruction Representation}
+\begin{figure}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+	\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
+	\hline \multicolumn{7}{|c|}{funct7}&\multicolumn{5}{c|}{rs2}&\multicolumn{5}{c|}{rs1}&\multicolumn{3}{c|}{funct3}&\multicolumn{5}{c|}{rd}&\multicolumn{7}{c|}{opcode}\\
+	\hline
+\end{tabular}
+\caption{R-Type instruction layout}
+\end{figure}
+\subsubsection{I-Type Instructions}
+\title{I-Type Instruction Representation}
+\begin{figure}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+	\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
+	\hline s* &\multicolumn{11}{|c|}{imm[11:0]}&\multicolumn{5}{c|}{rs1}&\multicolumn{3}{c|}{funct3}&\multicolumn{5}{c|}{rd}&\multicolumn{7}{c|}{opcode}\\
+	\hline
+\end{tabular}
+\caption{I-Type instruction layout, * the sign of the immediate, if loaded into a memory location, the immediate is sign extended down to bit 11 as shown in figure \cref{fig:imm_se}}
+\end{figure}
+\begin{figure}
+	\title{Signed Immediate Representation}
+	\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+		\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
+		\hline \multicolumn{21}{|c}{sign} &\multicolumn{11}{|c|}{imm[11:0]}\\
+		\hline
+	\end{tabular}
+\caption[]{Representation of an 11-bit immediate in memory. Unsigned immediates are represented in the same way, simply adding one bit to the significant end.}
+\label{fig:imm_se}
+\end{figure}
+	
+\end{landscape}
 \subsection{Functions in RISC-V}
 \section{Week 4}
 \subsection{Performance}
