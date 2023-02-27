@@ -5,9 +5,14 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{lscape} 
+\usepackage{amsmath}
 \usepackage[]{cleveref}
+\usepackage[]{geometry}
+\geometry{textheight=10in}	
+\usepackage{listings}
+\usepackage{multirow}
 
-\declaretheorem[shaded={rulecolor=gray}]{note}
+\declaretheorem[shaded={rulecolor=gray}]{note} %shaded={rulecolor=gray}
 
 \title{CMPUT 229 - RISC-V Green Sheet}
 \author{andrew.miller5722 }
@@ -18,7 +23,6 @@
 	\subsection{Introduction to RISC-V}
 	\subsubsection{Binary Representation}
 		All information passed through a processor can be expressed as a sequence of binary digits.
-		
 		
 		Conversion between a base 2 number and a base 10 number can be done rather efficiently:\\
 		\begin{equation}
@@ -139,50 +143,115 @@ The two basic loading and storing operations in RISC-V are the \verb*|lw, sw| in
 
 
 \section{Week 3}
-\begin{landscape}
 \subsection{Instruction types and Immediates}
-%TODO transcribe the big diagrams into this document
-% Template
-%\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
-%	\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
-%	\hline \multicolumn{7}{|c|}{funct7}&\multicolumn{5}{c|}{rs2}&\multicolumn{5}{c|}{rs1}&\multicolumn{3}{c|}{funct3}&\multicolumn{5}{c|}{rd}&\multicolumn{7}{c|}{opcode}\\
-%	\hline
-%\end{tabular}
-\subsubsection{R-Type Instructions}
-\title{R-Type Instruction Representation}
-\begin{figure}
-\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
-	\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
-	\hline \multicolumn{7}{|c|}{funct7}&\multicolumn{5}{c|}{rs2}&\multicolumn{5}{c|}{rs1}&\multicolumn{3}{c|}{funct3}&\multicolumn{5}{c|}{rd}&\multicolumn{7}{c|}{opcode}\\
-	\hline
-\end{tabular}
-\caption{R-Type instruction layout}
-\end{figure}
-\subsubsection{I-Type Instructions}
-\title{I-Type Instruction Representation}
-\begin{figure}
-\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
-	\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
-	\hline s* &\multicolumn{11}{|c|}{imm[11:0]}&\multicolumn{5}{c|}{rs1}&\multicolumn{3}{c|}{funct3}&\multicolumn{5}{c|}{rd}&\multicolumn{7}{c|}{opcode}\\
-	\hline
-\end{tabular}
-\caption{I-Type instruction layout, * the sign of the immediate, if loaded into a memory location, the immediate is sign extended down to bit 11 as shown in figure \cref{fig:imm_se}}
-\end{figure}
-\begin{figure}
-	\title{Signed Immediate Representation}
-	\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
-		\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
-		\hline \multicolumn{21}{|c}{sign} &\multicolumn{11}{|c|}{imm[11:0]}\\
-		\hline
-	\end{tabular}
-\caption[]{Representation of an 11-bit immediate in memory. Unsigned immediates are represented in the same way, simply adding one bit to the significant end.}
-\label{fig:imm_se}
-\end{figure}
-	
+\subsubsection{Representing Instructions in Binary}
+In order for a processor to understand what we want it to do, we need to convert our instructions into a binary format. Assembly language is one level abstracted from this binary representation and it is the job of the assembler to translate our code into a machine readable binary representation. Luckily for us, this translation is almost direct, so we can get to understand what is going on under the hood of the assembler.
+
+There are some standard parts to the instructions that we need to recognize to fully understand what is happening:\footnote{This can be found on page 89 of (The Morgan Kaufmann Series in Computer Architecture and Design) David A. Patterson, John L. Hennessy - Computer Organization and Design RISC-V Edition, our class textbook.}
+\begin{itemize}
+	\item \textbf{opcode (7)}: The opcode gives the processor the first indication of what instruction we want it to perform.
+	\item \textbf{func3 (3), func7 (7)}: The func3 and 7 parts along with the opcode specify exactly which instruction we are asking the process to do. The reason that these are placed apart (as you will see in the diagrams below) is because some types of instructions don't need the full func7 specifier and the splitting of these parts simplifies the development of the hardware. Additionally, extensions of the ISA support 16-bit instructions so the RISC-V architecture by default reads 16-bit chunks of data.
+	\item \textbf{rd (5)}: The destination register, this is where the result of the register is stored if necessary.\footnote{You can really dive into this seperation thing, there si a presentation \href[]{https://inst.eecs.berkeley.edu//~cs61c/resources/su18_lec/Lecture7.pdf}{here} and a very good stack exchange answer \href[]{https://stackoverflow.com/questions/58414772/why-are-risc-v-s-b-and-u-j-instruction-types-encoded-in-this-way}{here} and a decent little debate with an insightful comment \href[]{https://stackoverflow.com/questions/42392369/why-are-opcode-field-and-funct-field-apart-in-mips}{here}}
+	\item \textbf{rs1, rs2 (5)}: These are the argument registers. rs1 is the first one we type and rs 2 is the second, so in the command \lstinline[]|add t1, t2, t3|, \lstinline[]|t1| is r1 and so forth.5
+\end{itemize}
+\begin{landscape}
+	%TODO transcribe the big diagrams into this document
+	% Template
+	%\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+	%	\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
+	%	\hline \multicolumn{7}{|c|}{funct7}&\multicolumn{5}{c|}{rs2}&\multicolumn{5}{c|}{rs1}&\multicolumn{3}{c|}{funct3}&\multicolumn{5}{c|}{rd}&\multicolumn{7}{c|}{opcode}\\
+	%	\hline
+	%\end{tabular}
+	%%%%%%%%%%%%%%%%%% R-Type %%%%%%%%%%%%%%%%%%%%
+	\begin{figure}
+		\title{R-Type Instruction Representation}
+		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+			\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
+			\hline \multicolumn{7}{|c|}{funct7}&\multicolumn{5}{c|}{rs2}&\multicolumn{5}{c|}{rs1}&\multicolumn{3}{c|}{funct3}&\multicolumn{5}{c|}{rd}&\multicolumn{7}{c|}{opcode}\\
+			\hline
+		\end{tabular}
+		\caption{R-Type instruction layout}
+	\end{figure}
+	%%%%%%%%%%%%%%%%%% I-Type %%%%%%%%%%%%%%%%%%%%
+	\begin{figure}
+		\title{I-Type Instruction Representation}
+		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+			\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
+			\hline s* &\multicolumn{11}{|c|}{imm[11:0]}&\multicolumn{5}{c|}{rs1}&\multicolumn{3}{c|}{funct3}&\multicolumn{5}{c|}{rd}&\multicolumn{7}{c|}{opcode}\\
+			\hline
+		\end{tabular}
+		\caption{I-Type instruction layout, * the sign of the immediate, if loaded into a memory location, the immediate is sign extended down to bit 11 as shown in figure \cref{fig:imm_se}}
+	\end{figure}
+	%%%%%%%%%%%%%% Immediate Representation %%%%%%
+	\begin{figure}
+		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+			\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
+			\hline \multicolumn{21}{|c}{sign} &\multicolumn{11}{|c|}{imm[11:0]}\\
+			\hline
+		\end{tabular}
+		\caption[]{Representation of an 11-bit immediate in memory. Unsigned immediates are represented in the same way, simply adding one bit to the significant end.}
+		\label{fig:imm_se}
+	\end{figure}
+	%%%%%%%%%%%%%%%%%% S-Type %%%%%%%%%%%%%%%%%%%%
+	\begin{figure}
+		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+			\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
+			\hline s*&\multicolumn{6}{|c}{imm[11:5]} &\multicolumn{5}{|c|}{rs2}&\multicolumn{5}{|c|}{rs1}&\multicolumn{3}{|c|}{funct3}&\multicolumn{5}{|c|}{imm[4:0]}&\multicolumn{7}{|c|}{opcode}\\
+			\hline
+		\end{tabular}
+		\caption[]{Representation of the S-Type instructions, note that the immediate is still 11 bits, it is simply split over two parts. Similarly to the I-type instructions, the immediate representation will follow the outlined form above.}
+		\label{fig:instr-s}
+	\end{figure}
+	%%%%%%%%%%%%%%%%%% B-Type %%%%%%%%%%%%%%%%%%%%
+	\begin{figure}
+		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+			\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
+			\hline s*&\multicolumn{6}{|c}{imm[10:5]} &\multicolumn{5}{|c|}{rs2}&\multicolumn{5}{|c|}{rs1}&\multicolumn{3}{|c|}{funct3}&\multicolumn{4}{|c|}{imm[4:1]}&[11]&\multicolumn{7}{|c|}{rs2}\\
+			\hline
+		\end{tabular}
+		\caption[]{Representation of the S-Type instructions, note that the immediate in this case is 12 bits, and is again split over two parts. The reasoning behind this ordering can be found in chapter 4.4 of the textbook.}
+		\label{fig:instr-b}
+	\end{figure}
+	%%%%%%%%%%%%%%%%%% U-Type %%%%%%%%%%%%%%%%%%%%
+	\begin{figure}
+		\title{Signed Immediate Representation}
+		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+			\hline31&30&29&28&27&26&25&24&23&22&21&20&19&18&17&16&15&14&13&12&11&10&9&8&7&6&5&4&3&2&1&0\\
+			\hline \multicolumn{20}{|c}{imm[31:12]} &\multicolumn{5}{|c|}{rd}&\multicolumn{7}{c|}{opcode}\\
+			\hline
+		\end{tabular}
+		\caption[]{Representation of a U-Type instruction in binary.}
+		\label{fig:instr-u}
+	\end{figure}
 \end{landscape}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+	\hline\multirow{2}{*}{Name}&\multicolumn{6}{|c|}{Field}&\multirow{2}{*}{Comments}\\
+	& 7 bits & 5 bits & 5 bits & 3 bits & 5 bits & 7 bits&\\
+	\hline R-Type & funct7 & rs2 & rs1 & funct3 & rd & opcode & Arithmetic Instruction format\\
+	\hline I-Type & \multicolumn{2}{|c|}{immediate[11:0]} & rs1 & funct3 & rd & opcode & Loads \& immediate arithmetic\\
+	\hline S-Type & imm[11:5] & rs2 & rs1 & funct3 & imm[4:0] & opcode & Stores\\
+	\hline SB-Type & imm[12, 10:5] & rs2 & rs1 & funct3 & imm[4:1,11] & opcode & Conditional Branch Statements\\
+	\hline UJ-Type & \multicolumn{4}{|c|}{imm[20,10:1,11,19:12]} & rd & opcode & unconditional jump format\\
+	\hline U-Type & \multicolumn{4}{|c|}{imm[31:12]} & rd & opcode & Upper immediate format\\ 
+	\hline
+\end{tabular}
+\subsubsection{R-Type Instructions}
+These are operations that work on multiple registers without any intermediates or interaction with memory, such as \verb|add,sub|.
+\subsubsection{I-Type Instructions}
+\subsubsection{S-Type  Instructions}
+\subsubsection{B-Type  Instructions}
+\subsubsection{U-Type  Instructions}
+\subsubsection{JAL-Type  Instructions}
 \subsection{Functions in RISC-V}
 \section{Week 4}
 \subsection{Performance}
+\label{sec:perf}
+Key formulae:
+\begin{align}
+	\text{Performance}_X&=\frac{1}{\text{Execution Time}}\\
+	\text{CPI}&=\frac{\text{Clock periods}}{\text{Instructions}}\\
+	\text{CPU Time} &=\frac{\text{Instruction count}\times\text{CPI}}{\text{Clock rate}}
+\end{align}
 \section{Week 5}
 \subsection{Pointers}
 \subsection{Computer Arithmetic}
