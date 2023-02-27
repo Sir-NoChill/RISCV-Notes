@@ -192,6 +192,29 @@ The two basic loading and storing operations in RISC-V are the \verb*|lw, sw| in
 \subsection{Exceptions and Interrupts}
 \subsection{I/O Devices}
 
+\section{Appendices}
+\subsection{Register Usages}
+\begin{tabular}{|c|c|c|}
+	\hline \textbf{Name} & \textbf{Number} & \textbf{Description}\\
+	\hline ustatus & 0 &Interrupt status information (set the lowest bit to enable exceptions)\\
+	\hline fflags &1&The accumulated floating point flags\\
+	\hline frm    &2&Rounding mode for floating point operatations\\
+	\hline fcsr   &3&Both frm and fflags\\
+	\hline uie    &4&Finer control for which interrupts are enabled\\
+	\hline utvec  &5&The base address of the interrupt handler\\
+	\hline uscratch &64 & Scratch for processing inside the interrupt handler\\
+	\hline uepc   &65&PC at the time the interrupt was triggered\\
+	\hline ucause &66&Cause of the interrupt (top bit is interrupt vs trap)\\
+	\hline utval  &67&Value associated with the cause\\
+	\hline uip    &68&Shows if any interrupt is pending and what type\\
+	\hline cycle  &3072&Number of clock cycles executed\\
+	\hline time   &3073&Time since some time in the past (Milliseconds since 1/1/1970 in RARS)\\
+	\hline instret&3074&Instructions retired (same as cycle in RARS)\\
+	\hline cycleh &3200&High 32 bits of cycle\\
+	\hline timeh  &3201&High 32 bits of time\\
+	\hline instreth &3202&High 32 bits of instret\\\hline
+\end{tabular}
+
 
 \newpage 
 \href[]{https://github.com/TheThirdOne/rars/wiki/Supported-Instructions}{Here} is a list of all the instructions supported by rars and the interpretation of those instructions.
