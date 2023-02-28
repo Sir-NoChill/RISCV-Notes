@@ -19,9 +19,18 @@ specific, open source textbook on the RISC-V specification. But that is a long w
 * The TODO list
 Priority levels are from p1 (Important) to p4 (nice to have eventually).
 Note that this is in addition to the todo's in the document itself.
-- Add a nicer to read green sheet (p4)
-- Complete the previous lecture sections (p1)
-- Write verbose answers to the problem bank (p3)
-- Add a more descriptive calling convention chart that includes the control and status conventions (p3)
-- Write a more comprehensive set of appendices containing a references to useful links and websites for the class (p3)
+- [ ] Add a nicer to read green sheet (p4)
+- [ ] Complete the previous lecture sections (p1)
+  - [ ] Pointers
+  - [ ] Computer Arithmetic
+  - [ ] Performance
+  - [ ] Compiler Structure (Brief)
+  - [ ] Exceptions and Interrupts
+  - [ ] I/O
+  - [ ] Computer Architecture
+- [ ] Write verbose answers to the problem bank (p3)
+- [ ] Add a more descriptive calling convention chart that includes the control and status conventions (p3)
+- [ ] Write a more comprehensive set of appendices containing a references to useful links and websites for the class (p3)
+- [ ] Write an explanation on how to test RISC-V code using rars and C
+  - [ ] Add my example framework that I need to finish up
 
